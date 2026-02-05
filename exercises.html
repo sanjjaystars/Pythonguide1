@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Mastery: 20+ Practice Challenges</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        :root { 
+            --py-blue: #3776ab; 
+            --py-yellow: #ffde57; 
+            --success: #00ff88; 
+            --warn: #ffaa00; 
+            --danger: #ff4444; 
+            --card-bg: rgba(255, 255, 255, 0.07);
+        }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            line-height: 1.6; 
+            background: #0f172a; /* Deep midnight blue */
+            margin: 0; 
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Animated Gradient Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            z-index: -1;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+        }
+
+        header { 
+            padding: 4rem 1rem; 
+            text-align: center; 
+            background: transparent;
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            background: linear-gradient(to right, #ffde57, #3776ab);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(255,222,87,0.3));
+        }
+
+        nav { 
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 15px; 
+            position: sticky; 
+            top: 0; 
+            box-shadow: 0 4px 30px rgba(0,0,0,0.5); 
+            text-align: center; 
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        nav a { 
+            margin: 0 15px; 
+            text-decoration: none; 
+            color: #94a3b8; 
+            font-weight: bold; 
+            transition: 0.3s;
+        }
+
+        nav a:hover { color: var(--py-yellow); }
+
+        .btn-nav { 
+            background: var(--py-blue); 
+            padding: 8px 20px; 
+            border-radius: 50px; 
+            color: white !important;
+            box-shadow: 0 0 15px rgba(55, 118, 171, 0.4);
+        }
+
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+
+        .difficulty-header { 
+            display: flex; 
+            align-items: center; 
+            margin-top: 60px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .badge { padding: 4px 15px; border-radius: 50px; color: #000; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        
+        /* Interactive Cards */
+        .ex-card { 
+            background: var(--card-bg);
+            backdrop-filter: blur(5px);
+            border-radius: 16px; 
+            padding: 25px; 
+            margin-bottom: 20px; 
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            opacity: 0; /* GSAP will animate this */
+        }
+
+        .ex-card:hover { 
+            transform: scale(1.02) translateY(-5px);
+            background: rgba(255,255,255,0.12);
+            border-color: var(--py-yellow);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .ex-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+        }
+        .ex-card.easy::before { background: var(--success); box-shadow: 0 0 15px var(--success); }
+        .ex-card.medium::before { background: var(--warn); box-shadow: 0 0 15px var(--warn); }
+        .ex-card.hard::before { background: var(--danger); box-shadow: 0 0 15px var(--danger); }
+
+        .ex-title { font-weight: bold; font-size: 1.3rem; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+        .ex-desc { color: #94a3b8; font-size: 1rem; margin: 15px 0; }
+        
+        /* Progress Checkbox */
+        .checkbox {
+            width: 20px; height: 20px;
+            cursor: pointer;
+            accent-color: var(--success);
+        }
+
+        .footer-action { 
+            text-align: center; 
+            margin: 80px 0; 
+            padding: 40px;
+            background: linear-gradient(rgba(55, 118, 171, 0.1), transparent);
+            border-radius: 20px;
+        }
+
+        .run-btn {
+            background: var(--py-yellow);
+            color: #000;
+            padding: 18px 45px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            box-shadow: 0 10px 30px rgba(255, 222, 87, 0.3);
+        }
+
+        .run-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 222, 87, 0.5);
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="bg-canvas"></div>
+
+<header>
+    <h1>Python BASIC QS</h1>
+    <p>Sharpen your logic. One challenge at a time.</p>
+</header>
+
+<nav>
+    <a href="index.html">← Master Guide</a>
+    <a href="#level-1">Basics</a>
+    <a href="#level-2">Logic</a>
+    <a href="#level-3">Data/OOP</a>
+    <a href="compiler.html" class="btn-nav">Enter Compiler ⚡</a>
+</nav>
+
+<div class="container">
+
+    <div class="difficulty-header" id="level-1">
+        <h2>Level 1: The Basics</h2>
+        <span class="badge" style="background: var(--success);">Initiate</span>
+    </div>
+    
+
+    <div class="ex-card easy">
+        <div class="ex-title">1.1 Hello User <input type="checkbox" class="checkbox"></div>
+        <div class="ex-desc">Ask for the user's name and favorite color using <code>input()</code>. Print a personalized greeting including both.</div>
+    </div>
+
+    <div class="ex-card easy">
+        <div class="ex-title">1.2 Simple Calculator <input type="checkbox" class="checkbox"></div>
+        <div class="ex-desc">Take two numbers from the user and print their Sum, Difference, and Power (a<sup>b</sup>).</div>
+    </div>
+
+    <div class="difficulty-header" id="level-2">
+        <h2>Level 2: Control & Loops</h2>
+        <span class="badge" style="background: var(--warn);">Novice</span>
+    </div>
+    
+
+    <div class="ex-card medium">
+        <div class="ex-title">2.1 FizzBuzz Pro <input type="checkbox" class="checkbox"></div>
+        <div class="ex-desc">Print numbers 1-50. "Fizz" for multiples of 3, "Buzz" for 5, and "FizzBuzz" for both.</div>
+    </div>
+
+    <div class="ex-card medium">
+        <div class="ex-title">2.2 Guess the Number <input type="checkbox" class="checkbox"></div>
+        <div class="ex-desc">Hardcode a number (e.g., 7). Ask user to guess until they find it.</div>
+    </div>
+
+    <div class="difficulty-header" id="level-3">
+        <h2>Level 3: Expert Realm</h2>
+        <span class="badge" style="background: var(--danger);">Master</span>
+    </div>
+    
+
+    <div class="ex-card hard">
+        <div class="ex-title">3.1 Prime Detector <input type="checkbox" class="checkbox"></div>
+        <div class="ex-desc">Write a function that takes a number and returns <code>True</code> if it is a Prime number, <code>False</code> otherwise.</div>
+    </div>
+
+    <div class="ex-card hard">
+        <div class="ex-title">3.2 Smart ATM (OOP) <input type="checkbox" class="checkbox"></div>
+        <div class="ex-desc">Create a Class <code>ATM</code> with balance. Include <code>withdraw()</code> that checks if balance is sufficient before deducting.</div>
+    </div>
+
+    <div class="footer-action">
+        <h2>Ready for the Trial?</h2>
+        <p>Your code editor is ready. Go prove your skills.</p>
+        <a href="compiler.html">
+            <button class="run-btn">Launch Compiler</button>
+        </a>
+    </div>
+
+</div>
+
+<script>
+    // GSAP Animation Script
+    window.addEventListener('load', () => {
+        gsap.to(".ex-card", {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: "power2.out"
+        });
+
+        gsap.from("header h1", {
+            scale: 0.8,
+            opacity: 0,
+            duration: 1.2,
+            ease: "elastic.out(1, 0.5)"
+        });
+    });
+
+    // Optional: Save checkbox state to localStorage
+    const checks = document.querySelectorAll('.checkbox');
+    checks.forEach((check, index) => {
+        const id = `ex-${index}`;
+        check.checked = localStorage.getItem(id) === 'true';
+        check.addEventListener('change', () => {
+            localStorage.setItem(id, check.checked);
+        });
+    });
+</script>
+
+</body>
+</html>

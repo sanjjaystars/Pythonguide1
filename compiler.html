@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Cyber-Compiler</title>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="https://skulpt.org/js/skulpt.min.js"></script>
+    <script src="https://skulpt.org/js/skulpt-stdlib.js"></script>
+
+    <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-green: #39ff14;
+            --neon-pink: #ff00ff;
+            --bg-dark: #0a0a0b;
+            --panel-bg: #16161a;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-dark);
+            color: #e0e0e0;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Top Bar */
+        header {
+            padding: 15px 30px;
+            background: #111;
+            border-bottom: 2px solid var(--neon-blue);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+
+        .title {
+            color: var(--neon-blue);
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        /* Main Workspace */
+        .workspace {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* Editor Section */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #code-editor {
+            flex: 1;
+            background: var(--panel-bg);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            color: var(--neon-green);
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+            line-height: 1.5;
+        }
+
+        #code-editor:focus {
+            border-color: var(--neon-blue);
+        }
+
+        /* Output Section */
+        .output-container {
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #console-output {
+            flex: 1;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            color: #fff;
+            font-size: 14px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Animated "Scanning" Line */
+        .scanner {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-blue);
+            z-index: 10;
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* Buttons */
+        .btn-group { display: flex; gap: 10px; }
+        
+        button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .run-btn {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+        }
+
+        .run-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px var(--neon-blue);
+        }
+
+        .back-btn {
+            background: transparent;
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+        }
+
+        /* Syntax highlighting-like colors (manual via text) */
+        .output-error { color: var(--neon-pink); }
+        .output-success { color: var(--neon-green); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="title">NEURAL_COMPILER v1.0</div>
+    <div class="btn-group">
+        <button class="back-btn" onclick="window.location.href='index.html'">← GUIDE</button>
+        <button class="run-btn" onclick="executePython()">EXECUTE_CODE ▶</button>
+    </div>
+</header>
+
+<div class="workspace">
+    <div class="editor-container">
+        <div id="scan-line" class="scanner"></div>
+        <textarea id="code-editor" spellcheck="false">
+# --- SYSTEM READY ---
+def greet(name):
+    return f"Access Granted: {name.upper()}"
+
+user = "Student_01"
+print(greet(user))
+
+# Try Exercise 1.1 here!
+</textarea>
+    </div>
+
+    <div class="output-container">
+        <div id="console-output">
+            <span style="color: #666;">// System output initialized...</span><br>
+        </div>
+    </div>
+</div>
+
+<script>
+    function outf(text) { 
+        var mypre = document.getElementById("console-output"); 
+        mypre.innerHTML = mypre.innerHTML + text; 
+    } 
+
+    function builtinRead(x) {
+        if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+            throw "File not found: '" + x + "'";
+        return Sk.builtinFiles["files"][x];
+    }
+
+    function executePython() { 
+        const editor = document.getElementById("code-editor");
+        const output = document.getElementById("console-output");
+        const scanner = document.getElementById("scan-line");
+        const prog = editor.value; 
+        
+        // Visual Effects
+        output.innerHTML = "<span class='output-success'>[RUNNING...]</span><br>";
+        scanner.style.display = "block";
+        
+        Sk.pre = "console-output";
+        Sk.configure({output:outf, read:builtinRead}); 
+
+        var myPromise = Sk.misceval.asyncToPromise(function() {
+            return Sk.importMainWithBody("<stdin>", false, prog, true);
+        });
+
+        myPromise.then(function(mod) {
+            scanner.style.display = "none";
+            outf("\n<span class='output-success'>[PROCESS_COMPLETE]</span>");
+        }, function(err) {
+            scanner.style.display = "none";
+            outf("<span class='output-error'>\n[ERROR]: " + err.toString() + "</span>");
+        });
+    }
+</script>
+
+</body>
+</html>
